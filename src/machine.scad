@@ -1,20 +1,20 @@
 width = 650;
 length = 580;
-height = 1000;
+height = 1060;
 rail_length = 450;
 
 bed_width = 450;
 bed_length = 450;
 
 profile_width=30;
-vertical_extrusion_height = height;
-top_frame_height=profile_width*2;
-bottom_frame_height=profile_width*2;
+vertical_extrusion_height = height-profile_width*2;
+top_frame_height=profile_width;
+bottom_frame_height=profile_width;
 inner_frame_height = height - bottom_frame_height - top_frame_height;
 carriage_mount_thickness = 4;
 
 gantry_profile_width=20;
-gantry_offset = profile_width + gantry_profile_width/2 + 30;
+gantry_offset = profile_width + gantry_profile_width/2 + 15;
 gantry_width = width-2*(carriage_mount_thickness+gantry_offset-gantry_profile_width/2+13+gantry_profile_width);
 gantry_length = length-profile_width*2;
 
@@ -41,19 +41,20 @@ module 2020Profile(width) {
 }
 
 module frame_horiz() {
-    translate([width/2, profile_width/2, profile_width]) rotate([90, 0, 90])
-    2Profile(width-profile_width*2);
-    translate([width/2, length-profile_width/2, profile_width]) rotate([90, 0, 90])
-    2Profile(width-profile_width*2);
+    o=profile_width/2;
+    translate([width/2, profile_width/2, o]) rotate([90, 0, 90])
+    Profile(width-profile_width*2);
+    translate([width/2, length-profile_width/2, o]) rotate([90, 0, 90])
+    Profile(width-profile_width*2);
     
-    translate([profile_width/2, (length-profile_width*2)/2 + profile_width, profile_width]) rotate([90, 0, 0])
-    2Profile(length-profile_width*2);
-    translate([width-profile_width/2, (length-profile_width*2)/2 + profile_width, profile_width]) rotate([90, 0, 0])
-    2Profile(length-profile_width*2);
+    translate([profile_width/2, (length-profile_width*2)/2 + profile_width, o]) rotate([90, 0, 0])
+    Profile(length-profile_width*2);
+    translate([width-profile_width/2, (length-profile_width*2)/2 + profile_width, o]) rotate([90, 0, 0])
+    Profile(length-profile_width*2);
 }
 
 module frame_vertical() {
-    vertical_offset = 0;
+    vertical_offset = profile_width;
     translate([profile_width/2, profile_width/2, (vertical_extrusion_height)/2 + vertical_offset])
     Profile(vertical_extrusion_height);
     translate([width-profile_width/2, profile_width/2, (vertical_extrusion_height)/2 + vertical_offset])
@@ -67,7 +68,7 @@ module frame_vertical() {
 module frame() {
     frame_horiz();
     frame_vertical();
-    translate([0, 0, height-profile_width*2])
+    translate([0, 0, height-profile_width])
     frame_horiz();
     
     //top
@@ -89,13 +90,21 @@ module mgn12(l) {
     translate([0, 13/2, 0]) rotate([0, 90, 90]) cube([27, 20, 13], center=true);
 }
 
+
+
+module gantry_idler() {
+    color("brown") cube([carriage_mount_thickness, 27, 20], center=true);
+}
+
 module verticalrod(l) {
     echo(str("BOM 8x",l,"mm threaded rod"));
     color("red") {
         cylinder(d=8, h=l, center=true);
-        rotate(90)
-        translate([0, 0, -l/2+13/2]) cube([48, 27, 13], center=true);
-        translate([0, 0, -(-l/2+13/2)]) cube([48, 27, 13], center=true);
+        rotate(90) {
+            translate([0, 0, -l/2+13/2]) cube([48, 27, 13], center=true);
+            translate([0, 0, -(-l/2+13/2)]) cube([48, 27, 13], center=true);
+        }
+        translate([0, 0, l/2-30]) cylinder(d=27.5, h=17.5, center=true);
     }
 }
 
@@ -149,15 +158,18 @@ module gt2pulley() {
 }
 
 module gantryside() {
-    translate([20+(10+2.3/2), gantry_length/2-profile_width-20-2-2.3/2, -34+10]) nema17();
+    translate([20+(10+2.3/2), gantry_length/2-profile_width-10-2-2.3/2, -34+10]) nema17();
     translate([0, 8-gantry_length/2, 20]) gt2pulley();
     translate([0, gantry_length/2-8, 20]) gt2pulley();
     rotate([90, 0, 0]) {
         translate([-10, 0, 0]) rotate([0, 0, 90]) mgn12(rail_length);
         rotate(90) 2020Profile(gantry_length);
     }
-    translate([(20+30)/2, 4.5-gantry_length/2, -20]) rotate([90, 0, 0]) bearing();
-    translate([(20+30)/2, -(4.5-gantry_length/2), -20]) rotate([90, 0, 0]) bearing();
+    translate([(20+15)/2, -5-gantry_length/2, -20]) {
+        rotate([90, 0, 0]) bearing();
+        translate([12.5, 12.5, 0]) rotate([0, 90, 0]) bearing();
+    }
+    translate([(20+15)/2, -(-5-gantry_length/2), -20]) rotate([90, 0, 0]) bearing();
 }
 
 module gantrymiddle() {
@@ -166,9 +178,11 @@ module gantrymiddle() {
         translate([0, 10, 0]) mgn12(rail_length);
         2020Profile(gantry_width);
     }
+    translate([gantry_width/2+carriage_mount_thickness/2, 0, 0]) rotate(180) gantry_idler();
+    translate([-(gantry_width/2+carriage_mount_thickness/2), 0, 0]) gantry_idler();
 }
 
-module bearing(od=30, id=10, r=9) {
+module bearing(od=16, id=5, r=5) {
     difference() {
         cylinder(d=od, h=r, center=true);
         cylinder(d=id, h=r+1, center=true);

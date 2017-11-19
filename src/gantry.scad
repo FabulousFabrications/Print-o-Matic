@@ -106,41 +106,39 @@ module corner_bracket_under() {
     l=corner_bracket_l();
     t=gantry_mount_thickness;
     corner_bracket();
-    
+
     gap=3;
-    offsets = [gantry_bearing_x_offset-gantry_bearing_od/2, gantry_bearing_y_offset+gantry_bearing_r/2, 0];
-    goffsets = [offsets[0], offsets[1]+gap/2, offsets[2]];
-    
+    offsets = [10, gantry_bearing_y_offset+gantry_bearing_r/2, 0];
+
     s=[gantry_bearing_2_offset+gantry_bearing_od/2-gantry_bearing_r/2, gantry_bearing_od/2-gantry_bearing_r/2+gantry_bearing_2_offset, t];
-    gs = [s[0]-gap/2, s[1]-gap, s[2]];
-    
+
+    goffsets = [offsets[0], offsets[1]+gap/2, offsets[2]];
+    gs = [s[0]-gap/2, s[1]-gap/2, s[2]];
+
     translate(goffsets) cube(gs);
-    
-    
+
     d=gantry_mount_bearing_extra;
-    translate(offsets + [(gs[1]+s[1])/2-t, gap/2, t+d/2])
-    bearing_slider(t, s, gs, offsets, goffsets, gap, d, true);
-    translate(offsets + [(gs[1]+s[1])/2, gap/2, t+d/2])
-    rotate([0, 0, 90]) bearing_slider(t, s, gs, offsets, goffsets, gap, d);
-    
-    //cube([s[0], gantry_bearing_r, gantry_mount_bearing_extra]);
-    
-    //translate(offsets+s) prism();
+    translate(goffsets + [gs[0]-t, 0, t+d/2])
+    bearing_slider(t, gs[1], offsets, goffsets, gap, d, true);
+    translate(goffsets + [gs[0], 0, t+d/2])
+    rotate([0, 0, 90]) bearing_slider(t, gs[0], offsets, goffsets, gap, d, true);
 }
 
-module bearing_slider(t, s, gs, offsets, goffsets, gap, d, r=false) {
+module bearing_slider(t, gsp, offsets, goffsets, gap, d, r=false) {
     
-    rotate([0, 90, 0])
-    difference() {
-        hull() {
-            translate([0, d/2, 0]) cylinder(d=d, h=t);
-            translate([r?-d/2:0, 0, 0]) cube([d/(r?1:2)+0.1, d, t]);
-            translate([0, gs[1]-d/2, 0]) cylinder(d=d, h=t);
-            translate([0, gs[1]-d, 0]) cube([d/2+0.1, d, t]);
-        }
-        #hull() {
-            translate([0, d/2, t/2]) hole(d=gantry_bearing_id, h=t+0.1);
-            translate([0, gs[1]-d/2, t/2]) hole(d=gantry_bearing_id, h=t+0.1);
+    rotate([0, 90, 0]) {
+        translate([-d/2, 0, 0]) cube([d+0.1, t, t]);
+        difference() {
+            hull() {
+                translate([0, d/2, 0]) cylinder(d=d, h=t);
+                translate([-d/2, 0, 0]) cube([d+0.1, d, t]);
+                translate([0, gsp-d/2, 0]) cylinder(d=d, h=t);
+                translate([0, gsp-d, 0]) cube([d/2+0.1, d, t]);
+            }
+            hull() {
+                translate([0, d/2, t/2]) hole(d=gantry_bearing_id, h=t+0.1);
+                translate([0, gsp-d/2, t/2]) hole(d=gantry_bearing_id, h=t+0.1);
+            }
         }
     }
 }
@@ -161,21 +159,8 @@ module gantry() {
     rotate([0, 90, 0]) translate([0, length/2+gantry_length/2-gantry_profile_width/2, width/2]) 2020Profile(width-2*(o+10));
 }
 
-module gantry_parts_flip(s) {
-    translate([0, 0, 0]) scale([s, 1, 1]) motor_corner_bracket();
-    translate([0, -200, 0]) scale([s, 1, 1]) corner_bracket();
-    translate([0, -300, 0]) scale([s, 1, 1]) corner_bracket_under();
-}
-
-module gantry_parts() {
-    translate([100, 0, 0]) gantry_parts_flip(1);
-    translate([250, 0, 0]) gantry_parts_flip(-1);
-}
-
 module gantry_idler() {
     color("brown") cube([carriage_mount_thickness, 27, 20], center=true);
 }
 
-%gantry();
-
-gantry_parts();
+gantry();

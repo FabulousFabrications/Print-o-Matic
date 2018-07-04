@@ -5,8 +5,8 @@ length = 580;
 height = 1060;
 rail_length = 450;
 
-bed_width = 450;
-bed_length = 450;
+bed_width = 500;
+bed_length = 500;
 
 //hole size for t-slot bolt/nuts for gantry
 gantry_hole_d=5;
@@ -31,6 +31,8 @@ gantry_mount_thickness = 4;
 gantry_bearing_od=16;
 gantry_bearing_id=5;
 gantry_bearing_r=5;
+
+z_screw_offset=profile_width*4;
 
 module print() {
     color("purple") children();

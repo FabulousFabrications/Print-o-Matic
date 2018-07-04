@@ -19,10 +19,12 @@ module gantryside() {
         translate([nema_offset_x, nema_offset_y, -34+10]) nema17();
         translate([0, 0, 10]) print() motor_corner_bracket();
         scale([1, -1, 1]) gantry_bearings();
+        print() scale([1, -1, 1]) side_bracket();
     }
     
     translate([0, -gantry_length/2, 0]) {
         translate([0, 0, 10]) print() corner_bracket();
+        print() side_bracket();
         translate([0, 0, -(10+gantry_mount_thickness)]) print() corner_bracket_under();
         gantry_bearings();
     }
@@ -97,6 +99,36 @@ module motor_corner_bracket() {
                 cube([nema17_d(), nema17_d(), t], center=true);
                 nema17_holes() hole(d=gantry_nema_hole_d, h=t, center=true);
                 cylinder(d=25, h=t+2, center=true);
+            }
+        }
+    }
+}
+
+//  !corner_bracket_under();
+
+function hex_dia(dia) = dia * (2 / sqrt(3));
+
+module side_bracket() {
+    zOffset = z_screw_offset-(length-gantry_length)/2;
+
+    ext=20;
+    t=gantry_profile_width;
+    translate([0, zOffset, 0]) {
+        translate([gantry_profile_width/2, -gantry_profile_width/2-ext/2, -gantry_profile_width/2])
+        difference() {
+            cube([gantry_mount_thickness, gantry_profile_width+ext, gantry_profile_width]);
+            for (i = [-1,1]) {
+                translate([0, i*(gantry_profile_width/2+5)+(gantry_profile_width+ext)/2, gantry_profile_width/2])
+                scale([1, 1, 1.1]) rotate([0, 90, 0]) hole(d=gantry_hole_d, h=t, center=true);
+            }
+        }
+        difference() {
+            translate([gantry_profile_width/2, -gantry_profile_width/2, -t/2])
+            cube([-profile_width/2+gantry_offset-gantry_profile_width/2+10, gantry_profile_width, t]);
+
+            translate([-profile_width/2+gantry_offset, 0, 0]) {
+            rotate(90) cylinder (d = hex_dia (13 + 0.3), $fn=6, h=profile_width+1); // hex nut
+                cylinder(d=8.6, h=profile_width+1, center=true);
             }
         }
     }

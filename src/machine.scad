@@ -2,6 +2,7 @@ include <globals.scad>;
 
 use <profiles.scad>;
 use <gantry.scad>;
+use <components/kfl08.scad>;
 
 // TODO:
 // single big bearing roller on extrusion -> 2 small ones
@@ -53,8 +54,8 @@ module verticalrod(l) {
     color("red") {
         cylinder(d=8, h=l, center=true);
         rotate(90) {
-            translate([0, 0, -l/2+13/2]) cube([48, 27, 13], center=true);
-            translate([0, 0, -(-l/2+13/2)]) cube([48, 27, 13], center=true);
+            translate([0, 0, -l/2]) kfl08();
+            translate([0, 0, -(-l/2)]) rotate([180, 0, 0]) kfl08();
         }
         translate([0, 0, l/2-30]) cylinder(d=27.5, h=17.5, center=true);
     }
@@ -77,7 +78,7 @@ module fixed_guides() {
     rotate(270) mgn12(guide_height);
     */
     
-    b=profile_width*4;
+    b=z_screw_offset;
     a=profile_width/2;
     rod_height = inner_frame_height;
     translate([a, b, bottom_frame_height+inner_frame_height/2]) verticalrod(rod_height);

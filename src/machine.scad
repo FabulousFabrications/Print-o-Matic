@@ -21,16 +21,28 @@ module frame_horiz() {
     Profile(length-profile_width*2);
 }
 
-module frame_vertical() {
+module frame_vertical_quarter() {
     vertical_offset = corner_size;
-    translate([profile_width/2, profile_width/2, (vertical_extrusion_height)/2 + vertical_offset])
+    
+    translate([0, 0, (vertical_extrusion_height)/2 + vertical_offset])
     Profile(vertical_extrusion_height);
-    translate([width-profile_width/2, profile_width/2, (vertical_extrusion_height)/2 + vertical_offset])
-    Profile(vertical_extrusion_height);
-    translate([profile_width/2, length-profile_width/2, (vertical_extrusion_height)/2 + vertical_offset])
-    Profile(vertical_extrusion_height);
-    translate([width-profile_width/2, length-profile_width/2, (vertical_extrusion_height)/2 + vertical_offset])
-    Profile(vertical_extrusion_height);
+    
+    translate([0, 0, corner_size/2]) print() cube(corner_size, center=true);
+    translate([0, 0, vertical_extrusion_height+corner_size*1.5]) print() cube(corner_size, center=true);
+}
+
+module frame_vertical() {
+    translate([profile_width/2, profile_width/2, 0])
+    frame_vertical_quarter();
+    
+    translate([width-profile_width/2, profile_width/2, 0])
+    frame_vertical_quarter();
+    
+    translate([profile_width/2, length-profile_width/2, 0])
+    frame_vertical_quarter();
+    
+    translate([width-profile_width/2, length-profile_width/2, 0])
+    frame_vertical_quarter();
 }
 
 module frame() {

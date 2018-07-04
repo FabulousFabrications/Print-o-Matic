@@ -16,7 +16,7 @@ profile_type=0;//0 = aluminium extrusion, 1=box section
 profile_width=30;
 profile_thickness=2.5;//only used for box section
 corner_size=profile_type==0?profile_width:0;
-vertical_extrusion_height = height-corner_size;
+vertical_extrusion_height = height-corner_size*2;
 top_frame_height=profile_width;
 bottom_frame_height=profile_width;
 inner_frame_height = height - bottom_frame_height - top_frame_height;

@@ -49,14 +49,71 @@ module gantry_bearings() {
     }
 }
 
+module gantry_mr12_connector() {
+    a=gantry_profile_width;
+    t=2;
+    at=a+t*2;
+    al=25;
+    od=6.4;
+    width=28;
+    below=1;
+    hole_gap=gantry_hole_d*2/3;
+    print() {
+        difference() {
+            union() {
+                translate([0,0,-below/2]) cube([carriage_mount_thickness, 35, width+below], center=true);
+                translate([carriage_mount_thickness/2+al/2, 0, 0]) {
+                    cube([al, at, at], center=true);
+                    translate([0, 0, -(width-at)/2-below]) cube([al, at, at], center=true);
+                }
+            }
+            rotate([0, 90, 0]) mr12_holes() {
+                cylinder(d=3, h=carriage_mount_thickness*2, center=true);
+            }
+            fl=al*0.8+carriage_mount_thickness/2;
+            translate([fl/2, 0, 0])
+            rotate([0, 90, 0]) mr12_holes() {
+                 cylinder(d=od, h=fl, center=true);
+            }
+            translate([fl/2, mr12_hole_distance()/2+od/4, -mr12_hole_distance()/2])
+            cube([fl, od/2, od], center=true);
+            scale([1, -1, 1]) translate([fl/2, mr12_hole_distance()/2+od/4, -mr12_hole_distance()/2])
+            cube([fl, od/2, od], center=true);
+
+            e=0.01;
+            translate([carriage_mount_thickness/2+al/2+e/2, 0, 0]) {
+                cube([al+e,a,a], center=true);
+                //#translate([0, 0, t]) cube([al+e,a,a], center=true);
+                translate([0, 0, a/2]) cube([al+e, at+0.01, od], center=true);
+            }
+            
+            translate([hole_gap+carriage_mount_thickness, 0, 0])
+            for (i = [0 : -90 : -180]) {
+                rotate([i, 0, 0])
+                translate([0, at/2, 0])
+                rotate([90, 0, 0])
+                hole(d=gantry_hole_d, h=t*2+1, center=true);
+            }
+            translate([al-hole_gap, 0, 0])
+            for (i = [0 : -90 : -180]) {
+                rotate([i, 0, 0])
+                translate([0, at/2, 0])
+                rotate([90, 0, 0])
+                hole(d=gantry_hole_d, h=t*2+1, center=true);
+            }
+        }
+        //cube([6, 10, 10], center=true);
+    }
+}
+
 module gantrymiddle() {
     translate()
     rotate([90, 0, 90]) {
         translate([0, 10, 0]) mgn12(rail_length);
         2020Profile(gantry_width);
     }
-    translate([gantry_width/2+carriage_mount_thickness/2, 0, 0]) rotate(180) gantry_idler();
-    translate([-(gantry_width/2+carriage_mount_thickness/2), 0, 0]) gantry_idler();
+    translate([gantry_width/2+carriage_mount_thickness/2, 0, 0]) rotate(180) gantry_mr12_connector();
+    translate([-(gantry_width/2+carriage_mount_thickness/2), 0, 0]) gantry_mr12_connector();
 }
 
 module bearing(od=gantry_bearing_od, id=gantry_bearing_id, r=gantry_bearing_r) {
@@ -182,17 +239,13 @@ module prism(l, w, h) {
 module gantry() {
     o=gantry_offset;
     translate([width/2, length/2, 0])
-    gantrymiddle();
+    !gantrymiddle();
     translate([o, length/2, 0])
     scale([-1, 1, 1]) gantryside();
     translate([width-o, length/2, 0])
     gantryside();
     rotate([0, 90, 0]) translate([0, length/2-gantry_length/2+gantry_profile_width/2, width/2]) 2020Profile(width-2*(o+10));
     rotate([0, 90, 0]) translate([0, length/2+gantry_length/2-gantry_profile_width/2, width/2]) 2020Profile(width-2*(o+10));
-}
-
-module gantry_idler() {
-    color("brown") cube([carriage_mount_thickness, 27, 20], center=true);
 }
 
 gantry();
